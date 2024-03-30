@@ -13,6 +13,9 @@ Under no circumstances shall the authors or distributors of this code be liable 
 
 By using this code, you agree to waive any claims or liabilities against the authors or distributors for any consequences resulting from its use.
 
+## Requirements
+1. inquirer -> pip install inquirer or pip3 install inquirer
+
 ## Getting started!
 1. Create a folder named accounts.
 2. For each account create a text file. For example; mytestaccount.txt

@@ -100,9 +100,9 @@ def do_check(cookie):
 
 # Function to display delay indicator
 def delay_indicator(refresh):
+    prefix = f"\r[{datetime.now().strftime('%H:%M:%S')}]:"
     for remaining in range(refresh, 0, -1):
-        sys.stdout.write(
-            f"\r[{datetime.now().strftime('%H:%M:%S')}]: Check complete! Checking again in {remaining} seconds.")
+        sys.stdout.write(prefix + " Check complete! Checking again in {:2d} seconds.".format(remaining))
         sys.stdout.flush()
         time.sleep(1)
     sys.stdout.write('\n')
@@ -122,8 +122,6 @@ def main():
     username = account_selection['username']
     cookie = load_cookie(username, ACCOUNT_DIR)
 
-    account_info(cookie)
-
     refresh = inquirer.prompt([
         inquirer.Text('refresh',
                       message="Set interval in seconds",
@@ -137,6 +135,8 @@ def main():
                       default=DEFAULT_CHECK_COUNT)
     ])['count']
     count = int(count)
+
+    account_info(cookie)
 
     for i in range(count):
         do_check(cookie)

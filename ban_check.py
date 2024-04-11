@@ -42,17 +42,22 @@ def console(message, style='default'):
 
 # Function to fetch data from Activision API
 def contact_activision(endpoint, cookie):
-    conn = http.client.HTTPSConnection("support.activision.com")
-    headers = {
-        'X-Activision-Countrycode': 'US',
-        'Cookie': cookie,
-    }
-    conn.request("GET", endpoint, headers=headers)
-    res = conn.getresponse()
-    if res.status != 200:
-        console("Unable to retrieve account data! Please check your credentials", 'warning')
+    try:
+        conn = http.client.HTTPSConnection("support.activision.com")
+        headers = {
+            'X-Activision-Countrycode': 'US',
+            'Cookie': cookie,
+        }
+        conn.request("GET", endpoint, headers=headers)
+        res = conn.getresponse()
+
+        if res.status != 200:
+            console("Unable to retrieve account data! Please check your credentials", 'warning')
+            sys.exit()
+        return json.loads(res.read().decode("utf-8"))
+    except Exception as e:
+        console(f"An error occurred while contacting Activision: Please check your credentials!", 'danger')
         sys.exit()
-    return json.loads(res.read().decode("utf-8"))
 
 
 # Function to check if an account has an appeal able ban
@@ -100,9 +105,9 @@ def do_check(cookie):
 
 # Function to display delay indicator
 def delay_indicator(refresh):
+    prefix = f"\r[{datetime.now().strftime('%H:%M:%S')}]:"
     for remaining in range(refresh, 0, -1):
-        sys.stdout.write(
-            f"\r[{datetime.now().strftime('%H:%M:%S')}]: Check complete! Checking again in {remaining} seconds.")
+        sys.stdout.write(prefix + " Check complete! Checking again in {:2d} seconds.".format(remaining))
         sys.stdout.flush()
         time.sleep(1)
     sys.stdout.write('\n')
@@ -122,8 +127,6 @@ def main():
     username = account_selection['username']
     cookie = load_cookie(username, ACCOUNT_DIR)
 
-    account_info(cookie)
-
     refresh = inquirer.prompt([
         inquirer.Text('refresh',
                       message="Set interval in seconds",
@@ -137,6 +140,8 @@ def main():
                       default=DEFAULT_CHECK_COUNT)
     ])['count']
     count = int(count)
+
+    account_info(cookie)
 
     for i in range(count):
         do_check(cookie)

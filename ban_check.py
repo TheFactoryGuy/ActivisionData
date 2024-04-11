@@ -42,17 +42,22 @@ def console(message, style='default'):
 
 # Function to fetch data from Activision API
 def contact_activision(endpoint, cookie):
-    conn = http.client.HTTPSConnection("support.activision.com")
-    headers = {
-        'X-Activision-Countrycode': 'US',
-        'Cookie': cookie,
-    }
-    conn.request("GET", endpoint, headers=headers)
-    res = conn.getresponse()
-    if res.status != 200:
-        console("Unable to retrieve account data! Please check your credentials", 'warning')
+    try:
+        conn = http.client.HTTPSConnection("support.activision.com")
+        headers = {
+            'X-Activision-Countrycode': 'US',
+            'Cookie': cookie,
+        }
+        conn.request("GET", endpoint, headers=headers)
+        res = conn.getresponse()
+
+        if res.status != 200:
+            console("Unable to retrieve account data! Please check your credentials", 'warning')
+            sys.exit()
+        return json.loads(res.read().decode("utf-8"))
+    except Exception as e:
+        console(f"An error occurred while contacting Activision: Please check your credentials!", 'danger')
         sys.exit()
-    return json.loads(res.read().decode("utf-8"))
 
 
 # Function to check if an account has an appeal able ban
